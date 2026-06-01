@@ -14,7 +14,7 @@ export const EGG_UNIT = 10000;
 
 function roundEggs(eggs: number): string {
   if (Number.isInteger(eggs)) return eggs.toString();
-  return eggs.toFixed(1);
+  return (Math.floor(eggs * 10) / 10).toFixed(1);
 }
 
 export function formatEggs(amount: number): string {
