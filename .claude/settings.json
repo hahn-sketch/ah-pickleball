@@ -21,7 +21,15 @@
       "Bash(npx prisma *)",
       "Bash(ping -c 2 db.degbgbaitkktvpzgvphv.supabase.co)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Read(//Users/itsha/**)",
+      "Bash(mv Class-AI-Agent ah-pickleball)",
+      "Bash(rm -rf Class-AI-Agent/.next Class-AI-Agent/node_modules)",
+      "Bash(mv Class-AI-Agent/ah-pickleball/* Class-AI-Agent/)",
+      "Bash(mv Class-AI-Agent/ah-pickleball/.* Class-AI-Agent/)",
+      "Bash(rm -rf Class-AI-Agent/ah-pickleball)",
+      "Bash(git commit -m 'chore: rename project to ah-pickleball *)"
     ],
     "additionalDirectories": [
       "/Users/itsha/Downloads/tbrain-brainstorming/projects/apppick/docs/exports",
