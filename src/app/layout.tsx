@@ -7,8 +7,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'AH Pickleball - Tính tiền',
-  description: 'App tính tiền pickleball cho nhóm AH Pickleball',
+  title: 'AH Pickleball - Bảng Phong Thần Sát',
+  description: 'AH Pickleball Team - Thứ 6 hàng tuần sân pick Tư Đình - Long Biên',
 };
 
 export const viewport: Viewport = {
