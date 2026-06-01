@@ -10,17 +10,7 @@ import type { Player, Session as DbSession } from '@prisma/client';
 
 interface SessionWithRelations extends DbSession {
   participants: Array<{ playerId: string; player: Player }>;
-  matches: Array<{
-    id: string;
-    sessionId: string;
-    teamAPlayer1: string;
-    teamAPlayer2: string;
-    teamBPlayer1: string;
-    teamBPlayer2: string;
-    matchType: 'NORMAL' | 'STAR';
-    winnerId: 'TEAM_A' | 'TEAM_B';
-    atps: Array<{ id: string; hitterId: string; wasReturned: boolean }>;
-  }>;
+  matches: Array<{ id: string }>;
 }
 
 interface HomeClientProps {

@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import type { MatchType as MatchTypeEnum } from '@prisma/client';
 
 type MatchType = 'normal' | 'star';
@@ -49,6 +49,7 @@ export async function addMatch(data: CreateMatchData) {
     include: { atps: true },
   });
 
+  revalidateTag('sessions', 'max');
   revalidatePath(`/session/${data.sessionId}`);
   revalidatePath(`/view/${data.sessionId}`);
   return match;
@@ -58,6 +59,7 @@ export async function deleteMatch(matchId: string, sessionId: string) {
   await db.match.delete({
     where: { id: matchId },
   });
+  revalidateTag('sessions', 'max');
   revalidatePath(`/session/${sessionId}`);
   revalidatePath(`/view/${sessionId}`);
 }

@@ -179,12 +179,12 @@ export function ResultsTable({
                             : ''
                         }`}
                       >
-                        <div className="flex items-center justify-center gap-1">
+                        <span className="inline-flex items-center justify-center gap-0.5 whitespace-nowrap">
                           {formatAmount(result.total)}
                           {result.hasAtp && result.atpAmount !== 0 && (
-                            <Zap className="h-3 w-3 text-yellow-500" />
+                            <Zap className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                           )}
-                        </div>
+                        </span>
                       </td>
                     );
                   })}

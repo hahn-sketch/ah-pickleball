@@ -57,46 +57,50 @@ export function SessionList({ sessions }: SessionListProps) {
   return (
     <div className="space-y-3">
       {sessions.map((session) => (
-        <Card key={session.id}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">{formatDate(session.date)}</span>
-                  {session.isSettled && (
-                    <Badge variant="secondary" className="text-xs">
-                      Đã quyết toán
-                    </Badge>
-                  )}
+        <Link key={session.id} href={`/session/${session.id}`} className="block">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium">{formatDate(session.date)}</span>
+                    {session.isSettled && (
+                      <Badge variant="secondary" className="text-xs">
+                        Đã quyết toán
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {session.participants.length} người • {session.matches.length}{' '}
+                    trận
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {session.participants.length} người • {session.matches.length}{' '}
-                  trận
-                </p>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(session.id, session.date)}
-                  disabled={isPending}
-                >
-                  {isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-                <Link href={`/session/${session.id}`}>
-                  <Button variant="ghost" size="icon">
-                    <ChevronRight className="h-5 w-5" />
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDelete(session.id, session.date);
+                    }}
+                    disabled={isPending}
+                  >
+                    {isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    )}
                   </Button>
-                </Link>
+                  <Button variant="outline" size="sm">
+                    Vào trận
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   );
