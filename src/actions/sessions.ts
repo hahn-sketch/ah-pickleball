@@ -79,8 +79,6 @@ export async function addParticipant(sessionId: string, playerId: string) {
     data: { sessionId, playerId },
   });
   revalidateTag('sessions', 'max');
-  revalidatePath(`/session/${sessionId}`);
-  revalidatePath(`/view/${sessionId}`);
 }
 
 export async function removeParticipant(sessionId: string, playerId: string) {
@@ -90,6 +88,4 @@ export async function removeParticipant(sessionId: string, playerId: string) {
     },
   });
   revalidateTag('sessions', 'max');
-  revalidatePath(`/session/${sessionId}`);
-  revalidatePath(`/view/${sessionId}`);
 }

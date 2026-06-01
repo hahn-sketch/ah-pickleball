@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useOptimistic } from 'react';
+import { useState, useTransition, useOptimistic, useCallback } from 'react';
 import { addParticipant, removeParticipant } from '@/actions/sessions';
 import { addPlayer } from '@/actions/players';
 import { Button } from '@/components/ui/button';
@@ -24,12 +24,13 @@ export function ParticipantSelector({
 }: ParticipantSelectorProps) {
   const [newGuestName, setNewGuestName] = useState('');
   const [showAddGuest, setShowAddGuest] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isAddingGuest, startGuestTransition] = useTransition();
 
   const [optimisticParticipants, updateOptimisticParticipants] = useOptimistic(
     participants,
     (state, action: { type: 'add' | 'remove'; playerId: string; player?: Player }) => {
       if (action.type === 'add' && action.player) {
+        if (state.some(p => p.playerId === action.playerId)) return state;
         return [...state, { playerId: action.playerId, player: action.player }];
       }
       return state.filter((p) => p.playerId !== action.playerId);
@@ -39,18 +40,15 @@ export function ParticipantSelector({
   const fixedPlayers = allPlayers.filter((p) => p.isFixed);
   const participantIds = optimisticParticipants.map((p) => p.playerId);
 
-  const handleToggle = (playerId: string, isParticipant: boolean) => {
-    const player = allPlayers.find((p) => p.id === playerId);
-    startTransition(async () => {
-      if (isParticipant) {
-        updateOptimisticParticipants({ type: 'remove', playerId });
-        await removeParticipant(sessionId, playerId);
-      } else {
-        updateOptimisticParticipants({ type: 'add', playerId, player });
-        await addParticipant(sessionId, playerId);
-      }
-    });
-  };
+  const handleToggle = useCallback((playerId: string, isParticipant: boolean, player?: Player) => {
+    if (isParticipant) {
+      updateOptimisticParticipants({ type: 'remove', playerId });
+      removeParticipant(sessionId, playerId);
+    } else if (player) {
+      updateOptimisticParticipants({ type: 'add', playerId, player });
+      addParticipant(sessionId, playerId);
+    }
+  }, [sessionId, updateOptimisticParticipants]);
 
   const handleAddGuest = () => {
     const trimmed = newGuestName.trim();
@@ -64,7 +62,7 @@ export function ParticipantSelector({
       return;
     }
 
-    startTransition(async () => {
+    startGuestTransition(async () => {
       const player = await addPlayer(trimmed, false);
       await addParticipant(sessionId, player.id);
       setNewGuestName('');
@@ -87,13 +85,13 @@ export function ParticipantSelector({
             return (
               <div
                 key={player.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
+                onClick={() => handleToggle(player.id, isParticipant, player)}
               >
                 <Checkbox
                   id={player.id}
                   checked={isParticipant}
-                  onCheckedChange={() => handleToggle(player.id, isParticipant)}
-                  disabled={isPending}
+                  onCheckedChange={() => handleToggle(player.id, isParticipant, player)}
                 />
                 <label
                   htmlFor={player.id}
@@ -116,9 +114,8 @@ export function ParticipantSelector({
                   <Badge key={p.playerId} variant="outline" className="py-1.5 px-3">
                     {p.player.name}
                     <button
-                      onClick={() => handleToggle(p.playerId, true)}
+                      onClick={() => handleToggle(p.playerId, true, p.player)}
                       className="ml-1 hover:text-destructive"
-                      disabled={isPending}
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -136,10 +133,10 @@ export function ParticipantSelector({
               onChange={(e) => setNewGuestName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddGuest()}
               autoFocus
-              disabled={isPending}
+              disabled={isAddingGuest}
             />
-            <Button onClick={handleAddGuest} size="icon" disabled={isPending}>
-              {isPending ? (
+            <Button onClick={handleAddGuest} size="icon" disabled={isAddingGuest}>
+              {isAddingGuest ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Plus className="h-4 w-4" />
@@ -149,7 +146,7 @@ export function ParticipantSelector({
               variant="ghost"
               size="icon"
               onClick={() => setShowAddGuest(false)}
-              disabled={isPending}
+              disabled={isAddingGuest}
             >
               <X className="h-4 w-4" />
             </Button>
