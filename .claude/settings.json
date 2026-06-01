@@ -1,12 +1,39 @@
 {
-  "model": "claude-opus-4-5",
-  "context_window": 200000,
   "permissions": {
+    "allow": [
+      "Read(//Users/itsha/Downloads/tbrain-brainstorming/projects/apppick/docs/exports/**)",
+      "Bash(python3 -c \"import sys; print\\(sys.stdin.read\\(\\).encode\\(\\).decode\\('unicode_escape'\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --use-npm)",
+      "Bash(mkdir -p /tmp/pickleball-temp)",
+      "Read(//tmp/**)",
+      "Bash(npx create-next-app@latest pickleball-billing --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --use-npm)",
+      "Bash(cp -r /tmp/pickleball-temp/pickleball-billing/* .)",
+      "Bash(cp /tmp/pickleball-temp/pickleball-billing/.eslintrc.json .)",
+      "Bash(cp /tmp/pickleball-temp/pickleball-billing/.gitignore .)",
+      "Bash(npx shadcn@latest init -d)",
+      "Bash(npx shadcn@latest add card input label dialog select checkbox badge --yes)",
+      "Bash(npm install *)",
+      "Bash(npm test *)",
+      "Bash(mkdir -p \"src/app/session/[id]\")",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npx prisma *)",
+      "Bash(ping -c 2 db.degbgbaitkktvpzgvphv.supabase.co)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ],
+    "additionalDirectories": [
+      "/Users/itsha/Downloads/tbrain-brainstorming/projects/apppick/docs/exports",
+      "/Users/itsha/Class-AI-Agent/src/app/session"
+    ],
     "allow_file_read": true,
     "allow_file_write": true,
     "allow_shell_commands": true,
     "allow_web_search": true
   },
+  "model": "claude-opus-4-5",
+  "context_window": 200000,
   "rules_dir": ".claude/rules",
   "commands_dir": ".claude/commands",
   "skills_dir": ".claude/skills",

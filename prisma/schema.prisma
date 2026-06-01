@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  name      String
+  isFixed   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participations SessionParticipant[]
+  atpsHit        ATP[]
+
+  @@map("players")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  name      String?
+  courtFee  Int      @default(0)
+  isSettled Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants SessionParticipant[]
+  matches      Match[]
+
+  @@map("sessions")
+}
+
+model SessionParticipant {
+  sessionId String
+  playerId  String
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  player    Player  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, playerId])
+  @@map("session_participants")
+}
+
+model Match {
+  id        String    @id @default(cuid())
+  sessionId String
+  session   Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  teamAPlayer1 String
+  teamAPlayer2 String
+  teamBPlayer1 String
+  teamBPlayer2 String
+  matchType MatchType @default(NORMAL)
+  winnerId  Winner
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  atps ATP[]
+
+  @@map("matches")
+}
+
+model ATP {
+  id          String  @id @default(cuid())
+  matchId     String
+  match       Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  hitterId    String
+  hitter      Player  @relation(fields: [hitterId], references: [id])
+  wasReturned Boolean @default(false)
+
+  @@map("atps")
+}
+
+enum MatchType {
+  NORMAL
+  STAR
+}
+
+enum Winner {
+  TEAM_A
+  TEAM_B
+}
