@@ -3,17 +3,20 @@ import {
   calculateMatchResults,
   calculateAtpBonus,
   calculateSessionResults,
+  dbMatchToMatch,
 } from './calculations';
-import type { Match, Session, Player } from '@/types';
+
+interface Match {
+  id: string;
+  sessionId: string;
+  teamA: [string, string];
+  teamB: [string, string];
+  matchType: 'normal' | 'star';
+  winnerId: 'teamA' | 'teamB';
+  atps: Array<{ id: string; hitterId: string; wasReturned: boolean }>;
+}
 
 describe('calculateMatchResults', () => {
-  const players: Player[] = [
-    { id: 'cuong', name: 'Cường', isFixed: true },
-    { id: 'trung', name: 'Trung', isFixed: true },
-    { id: 'long', name: 'Long', isFixed: true },
-    { id: 'quang', name: 'A Quang', isFixed: true },
-  ];
-
   it('should calculate normal match winnings correctly', () => {
     const match: Match = {
       id: 'm1',
@@ -23,7 +26,6 @@ describe('calculateMatchResults', () => {
       matchType: 'normal',
       winnerId: 'teamA',
       atps: [],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateMatchResults(match);
@@ -43,7 +45,6 @@ describe('calculateMatchResults', () => {
       matchType: 'star',
       winnerId: 'teamB',
       atps: [],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateMatchResults(match);
@@ -65,7 +66,6 @@ describe('calculateAtpBonus', () => {
       matchType: 'normal',
       winnerId: 'teamA',
       atps: [{ id: 'atp1', hitterId: 'cuong', wasReturned: false }],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateAtpBonus(match);
@@ -85,7 +85,6 @@ describe('calculateAtpBonus', () => {
       matchType: 'normal',
       winnerId: 'teamA',
       atps: [{ id: 'atp1', hitterId: 'cuong', wasReturned: true }],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateAtpBonus(match);
@@ -108,7 +107,6 @@ describe('calculateAtpBonus', () => {
         { id: 'atp1', hitterId: 'cuong', wasReturned: false },
         { id: 'atp2', hitterId: 'long', wasReturned: false },
       ],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateAtpBonus(match);
@@ -128,7 +126,6 @@ describe('calculateAtpBonus', () => {
       matchType: 'star',
       winnerId: 'teamA',
       atps: [{ id: 'atp1', hitterId: 'cuong', wasReturned: false }],
-      createdAt: new Date().toISOString(),
     };
 
     const results = calculateAtpBonus(match);
@@ -142,29 +139,32 @@ describe('calculateAtpBonus', () => {
 
 describe('calculateSessionResults', () => {
   it('should calculate final balance with court fee split', () => {
-    const session: Session = {
+    const session = {
       id: 's1',
-      date: '2026-06-01',
-      participantIds: ['cuong', 'trung', 'long', 'quang'],
       courtFee: 200000,
-      isSettled: true,
-      createdAt: new Date().toISOString(),
+      participants: [
+        { playerId: 'cuong' },
+        { playerId: 'trung' },
+        { playerId: 'long' },
+        { playerId: 'quang' },
+      ],
     };
 
-    const matches: Match[] = [
+    const dbMatches = [
       {
         id: 'm1',
         sessionId: 's1',
-        teamA: ['cuong', 'trung'],
-        teamB: ['long', 'quang'],
-        matchType: 'normal',
-        winnerId: 'teamA',
+        teamAPlayer1: 'cuong',
+        teamAPlayer2: 'trung',
+        teamBPlayer1: 'long',
+        teamBPlayer2: 'quang',
+        matchType: 'NORMAL' as const,
+        winnerId: 'TEAM_A' as const,
         atps: [{ id: 'atp1', hitterId: 'cuong', wasReturned: false }],
-        createdAt: new Date().toISOString(),
       },
     ];
 
-    const results = calculateSessionResults(session, matches);
+    const results = calculateSessionResults(session, dbMatches);
 
     const cuong = results.find((r) => r.playerId === 'cuong')!;
     expect(cuong.matchWinnings).toBe(50000);
