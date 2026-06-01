@@ -12,15 +12,21 @@ export const ATP_BONUS_DIVISOR = 2;
 // 10,000đ = 1 trứng
 export const EGG_UNIT = 10000;
 
+function roundEggs(eggs: number): string {
+  if (Number.isInteger(eggs)) return eggs.toString();
+  return eggs.toFixed(1);
+}
+
 export function formatEggs(amount: number): string {
   const eggs = amount / EGG_UNIT;
-  if (eggs > 0) return `+${eggs} 🥚`;
-  if (eggs < 0) return `${eggs} 🥚`;
+  if (eggs > 0) return `+${roundEggs(eggs)}🥚`;
+  if (eggs < 0) return `${roundEggs(eggs)}🥚`;
   return '0';
 }
 
-export function formatEggsNumber(amount: number): number {
-  return amount / EGG_UNIT;
+export function formatEggsNumber(amount: number): string {
+  const eggs = amount / EGG_UNIT;
+  return roundEggs(eggs);
 }
 
 export function getStake(matchType: MatchType): number {

@@ -76,10 +76,7 @@ export function Settlement({
   };
 
   const formatAmountEggs = (amount: number) => {
-    const eggs = formatEggsNumber(amount);
-    if (eggs > 0) return `+${eggs} 🥚`;
-    if (eggs < 0) return `${eggs} 🥚`;
-    return '0 🥚';
+    return formatEggs(amount);
   };
 
   const getPlayerName = (playerId: string) => {
