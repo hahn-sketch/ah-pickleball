@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useOptimistic } from 'react';
 import { addParticipant, removeParticipant } from '@/actions/sessions';
 import { addPlayer } from '@/actions/players';
 import { Button } from '@/components/ui/button';
@@ -26,14 +26,27 @@ export function ParticipantSelector({
   const [showAddGuest, setShowAddGuest] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const [optimisticParticipants, updateOptimisticParticipants] = useOptimistic(
+    participants,
+    (state, action: { type: 'add' | 'remove'; playerId: string; player?: Player }) => {
+      if (action.type === 'add' && action.player) {
+        return [...state, { playerId: action.playerId, player: action.player }];
+      }
+      return state.filter((p) => p.playerId !== action.playerId);
+    }
+  );
+
   const fixedPlayers = allPlayers.filter((p) => p.isFixed);
-  const participantIds = participants.map((p) => p.playerId);
+  const participantIds = optimisticParticipants.map((p) => p.playerId);
 
   const handleToggle = (playerId: string, isParticipant: boolean) => {
+    const player = allPlayers.find((p) => p.id === playerId);
     startTransition(async () => {
       if (isParticipant) {
+        updateOptimisticParticipants({ type: 'remove', playerId });
         await removeParticipant(sessionId, playerId);
       } else {
+        updateOptimisticParticipants({ type: 'add', playerId, player });
         await addParticipant(sessionId, playerId);
       }
     });
@@ -64,7 +77,7 @@ export function ParticipantSelector({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center justify-between">
           <span>Ai chơi hôm nay?</span>
-          <Badge variant="secondary">{participants.length} người</Badge>
+          <Badge variant="secondary">{optimisticParticipants.length} người</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -93,11 +106,11 @@ export function ParticipantSelector({
           })}
         </div>
 
-        {participants.filter((p) => !p.player.isFixed).length > 0 && (
+        {optimisticParticipants.filter((p) => !p.player.isFixed).length > 0 && (
           <div className="pt-2 border-t">
             <p className="text-sm text-muted-foreground mb-2">Khách hôm nay:</p>
             <div className="flex flex-wrap gap-2">
-              {participants
+              {optimisticParticipants
                 .filter((p) => !p.player.isFixed)
                 .map((p) => (
                   <Badge key={p.playerId} variant="outline" className="py-1.5 px-3">

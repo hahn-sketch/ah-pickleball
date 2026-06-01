@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, Check, Loader2 } from 'lucide-react';
-import { calculateSessionResults } from '@/lib/calculations';
+import { calculateSessionResults, formatEggs, formatEggsNumber, EGG_UNIT } from '@/lib/calculations';
 import type { Player, Session as DbSession } from '@prisma/client';
 
 interface DbMatch {
@@ -71,8 +71,15 @@ export function Settlement({
     });
   };
 
-  const formatAmount = (amount: number) => {
+  const formatAmountVND = (amount: number) => {
     return new Intl.NumberFormat('vi-VN').format(Math.abs(amount)) + 'đ';
+  };
+
+  const formatAmountEggs = (amount: number) => {
+    const eggs = formatEggsNumber(amount);
+    if (eggs > 0) return `+${eggs} 🥚`;
+    if (eggs < 0) return `${eggs} 🥚`;
+    return '0 🥚';
   };
 
   const getPlayerName = (playerId: string) => {
@@ -148,9 +155,9 @@ export function Settlement({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground">
-          Tiền sân + nước: {formatAmount(session.courtFee)} ÷{' '}
+          Tiền sân + nước: {formatAmountVND(session.courtFee)} ÷{' '}
           {session.participants.length} người ={' '}
-          {formatAmount(session.courtFee / session.participants.length)}/người
+          {formatEggsNumber(session.courtFee / session.participants.length)} 🥚/người
         </div>
 
         {!isViewOnly && (
@@ -202,21 +209,17 @@ export function Settlement({
                           : ''
                       }`}
                     >
-                      {isPositive ? '+' : ''}
-                      {formatAmount(result.finalBalance)}
+                      {formatAmountEggs(result.finalBalance)}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    Trận: {result.matchWinnings >= 0 ? '+' : ''}
-                    {formatAmount(result.matchWinnings)}
+                    Trận: {formatAmountEggs(result.matchWinnings)}
                     {result.atpBonus !== 0 && (
                       <>
-                        {' '}
-                        • ATP: {result.atpBonus >= 0 ? '+' : ''}
-                        {formatAmount(result.atpBonus)}
+                        {' '}• ATP: {formatAmountEggs(result.atpBonus)}
                       </>
                     )}
-                    {' '}• Sân: -{formatAmount(result.courtShare)}
+                    {' '}• Sân: -{formatEggsNumber(result.courtShare)} 🥚
                   </div>
                   <div className="text-xs font-medium mt-1">
                     {isPositive

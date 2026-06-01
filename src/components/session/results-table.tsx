@@ -10,6 +10,8 @@ import {
   calculateMatchResults,
   calculateAtpBonus,
   dbMatchToMatch,
+  formatEggs,
+  formatEggsNumber,
 } from '@/lib/calculations';
 import type { Player, Session as DbSession } from '@prisma/client';
 
@@ -57,10 +59,7 @@ export function ResultsTable({
   };
 
   const formatAmount = (amount: number) => {
-    const formatted = Math.abs(amount / 1000).toFixed(0);
-    if (amount > 0) return `+${formatted}k`;
-    if (amount < 0) return `-${formatted}k`;
-    return '0';
+    return formatEggs(amount);
   };
 
   const getMatchResultForPlayer = (dbMatch: DbMatch, playerId: string) => {

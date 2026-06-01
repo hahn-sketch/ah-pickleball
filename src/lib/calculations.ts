@@ -9,6 +9,20 @@ export const STAKE_AMOUNTS: Record<MatchType, number> = {
 
 export const ATP_BONUS_DIVISOR = 2;
 
+// 10,000đ = 1 trứng
+export const EGG_UNIT = 10000;
+
+export function formatEggs(amount: number): string {
+  const eggs = amount / EGG_UNIT;
+  if (eggs > 0) return `+${eggs} 🥚`;
+  if (eggs < 0) return `${eggs} 🥚`;
+  return '0';
+}
+
+export function formatEggsNumber(amount: number): number {
+  return amount / EGG_UNIT;
+}
+
 export function getStake(matchType: MatchType): number {
   return STAKE_AMOUNTS[matchType];
 }
