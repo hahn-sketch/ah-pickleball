@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useOptimistic, useCallback } from 'react';
+import { useState, useOptimistic, useCallback } from 'react';
 import { addParticipant, removeParticipant } from '@/actions/sessions';
 import { addPlayer } from '@/actions/players';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, UserPlus, X, Loader2 } from 'lucide-react';
+import { Plus, UserPlus, X } from 'lucide-react';
 import type { Player } from '@prisma/client';
 
 interface ParticipantSelectorProps {
@@ -24,7 +24,6 @@ export function ParticipantSelector({
 }: ParticipantSelectorProps) {
   const [newGuestName, setNewGuestName] = useState('');
   const [showAddGuest, setShowAddGuest] = useState(false);
-  const [isAddingGuest, startGuestTransition] = useTransition();
 
   const [optimisticParticipants, updateOptimisticParticipants] = useOptimistic(
     participants,
@@ -62,11 +61,21 @@ export function ParticipantSelector({
       return;
     }
 
-    startGuestTransition(async () => {
-      const player = await addPlayer(trimmed, false);
-      await addParticipant(sessionId, player.id);
-      setNewGuestName('');
-      setShowAddGuest(false);
+    const tempId = `temp-${Date.now()}`;
+    const tempPlayer: Player = {
+      id: tempId,
+      name: trimmed,
+      isFixed: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    updateOptimisticParticipants({ type: 'add', playerId: tempId, player: tempPlayer });
+    setNewGuestName('');
+    setShowAddGuest(false);
+
+    addPlayer(trimmed, false).then((player) => {
+      addParticipant(sessionId, player.id);
     });
   };
 
@@ -133,20 +142,14 @@ export function ParticipantSelector({
               onChange={(e) => setNewGuestName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddGuest()}
               autoFocus
-              disabled={isAddingGuest}
             />
-            <Button onClick={handleAddGuest} size="icon" disabled={isAddingGuest}>
-              {isAddingGuest ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
+            <Button onClick={handleAddGuest} size="icon">
+              <Plus className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowAddGuest(false)}
-              disabled={isAddingGuest}
             >
               <X className="h-4 w-4" />
             </Button>

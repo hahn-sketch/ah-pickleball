@@ -7,8 +7,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ah-pickleball.vercel.app'),
   title: 'AH Pickleball - Bảng Phong Thần Sát',
   description: 'AH Pickleball Team - Thứ 6 hàng tuần sân pick Tư Đình - Long Biên',
+  icons: {
+    icon: '/favicon.jpg',
+    apple: '/favicon.jpg',
+  },
+  openGraph: {
+    title: 'AH Pickleball - Bảng Phong Thần Sát',
+    description: 'AH Pickleball Team - Thứ 6 hàng tuần sân pick Tư Đình - Long Biên',
+    images: ['/favicon.jpg'],
+  },
 };
 
 export const viewport: Viewport = {

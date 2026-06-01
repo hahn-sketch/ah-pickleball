@@ -2,29 +2,16 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ResultsTable } from '@/components/session/results-table';
 import { Settlement } from '@/components/session/settlement';
 import { Badge } from '@/components/ui/badge';
 import { Eye } from 'lucide-react';
-import type { Player, Session as DbSession } from '@prisma/client';
-
-interface SessionWithRelations extends DbSession {
-  participants: Array<{ playerId: string; player: Player }>;
-  matches: Array<{
-    id: string;
-    sessionId: string;
-    teamAPlayer1: string;
-    teamAPlayer2: string;
-    teamBPlayer1: string;
-    teamBPlayer2: string;
-    matchType: 'NORMAL' | 'STAR';
-    winnerId: 'TEAM_A' | 'TEAM_B';
-    atps: Array<{ id: string; hitterId: string; wasReturned: boolean }>;
-  }>;
-}
+import { formatDateFull } from '@/lib/format';
+import type { SessionWithMatches } from '@/types/session';
 
 interface ViewerClientProps {
-  session: SessionWithRelations;
+  session: SessionWithMatches;
 }
 
 export function ViewerClient({ session }: ViewerClientProps) {
@@ -33,19 +20,10 @@ export function ViewerClient({ session }: ViewerClientProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       router.refresh();
-    }, 5000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [router]);
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-    });
-  };
 
   return (
     <div className="min-h-screen pb-20">
@@ -53,9 +31,16 @@ export function ViewerClient({ session }: ViewerClientProps) {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-bold text-lg">🏓 AH Pickleball</h1>
+              <Image
+                src="/logo.jpg"
+                alt="AH Pickleball Team"
+                width={100}
+                height={33}
+                className="h-8 w-auto"
+                priority
+              />
               <p className="text-sm text-muted-foreground">
-                {formatDate(session.date)}
+                {formatDateFull(session.date)}
               </p>
             </div>
             <Badge variant="outline" className="flex items-center gap-1">

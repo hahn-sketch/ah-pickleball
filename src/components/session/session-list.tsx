@@ -5,17 +5,13 @@ import { deleteSession } from '@/actions/sessions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Trash2, ChevronRight, Loader2 } from 'lucide-react';
+import { Calendar, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import type { Player, Session as DbSession } from '@prisma/client';
-
-interface SessionWithRelations extends DbSession {
-  participants: Array<{ playerId: string; player: Player }>;
-  matches: Array<{ id: string }>;
-}
+import { formatDateFull } from '@/lib/format';
+import type { SessionListItem } from '@/types/session';
 
 interface SessionListProps {
-  sessions: SessionWithRelations[];
+  sessions: SessionListItem[];
 }
 
 export function SessionList({ sessions }: SessionListProps) {
@@ -29,15 +25,6 @@ export function SessionList({ sessions }: SessionListProps) {
 
     startTransition(async () => {
       await deleteSession(sessionId);
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
     });
   };
 
@@ -63,7 +50,7 @@ export function SessionList({ sessions }: SessionListProps) {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{formatDate(session.date)}</span>
+                    <span className="font-medium">{formatDateFull(session.date)}</span>
                     {session.isSettled && (
                       <Badge variant="secondary" className="text-xs">
                         Đã quyết toán

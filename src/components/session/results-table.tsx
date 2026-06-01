@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useMemo, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteMatch } from '@/actions/matches';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,6 @@ import {
   calculateAtpBonus,
   dbMatchToMatch,
   formatEggs,
-  formatEggsNumber,
 } from '@/lib/calculations';
 import type { Player, Session as DbSession } from '@prisma/client';
 
@@ -43,40 +42,41 @@ export function ResultsTable({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const calculatePlayerTotal = (playerId: string) => {
-    let total = 0;
+  const calculatedData = useMemo(() => {
+    const playerTotals: Record<string, number> = {};
+    const matchResults: Record<string, Record<string, { total: number; hasAtp: boolean; atpAmount: number } | null>> = {};
+
+    for (const participant of participants) {
+      playerTotals[participant.playerId] = 0;
+    }
+
     for (const dbMatch of matches) {
       const match = dbMatchToMatch(dbMatch);
       const allPlayers = [...match.teamA, ...match.teamB];
-      if (allPlayers.includes(playerId)) {
-        const matchResults = calculateMatchResults(match);
-        const atpResults = calculateAtpBonus(match);
-        total += matchResults[playerId] || 0;
-        total += atpResults[playerId] || 0;
+      const matchRes = calculateMatchResults(match);
+      const atpRes = calculateAtpBonus(match);
+
+      matchResults[dbMatch.id] = {};
+
+      for (const participant of participants) {
+        const playerId = participant.playerId;
+        if (!allPlayers.includes(playerId)) {
+          matchResults[dbMatch.id][playerId] = null;
+          continue;
+        }
+
+        const total = (matchRes[playerId] || 0) + (atpRes[playerId] || 0);
+        playerTotals[playerId] += total;
+        matchResults[dbMatch.id][playerId] = {
+          total,
+          hasAtp: match.atps.length > 0,
+          atpAmount: atpRes[playerId] || 0,
+        };
       }
     }
-    return total;
-  };
 
-  const formatAmount = (amount: number) => {
-    return formatEggs(amount);
-  };
-
-  const getMatchResultForPlayer = (dbMatch: DbMatch, playerId: string) => {
-    const match = dbMatchToMatch(dbMatch);
-    const allPlayers = [...match.teamA, ...match.teamB];
-    if (!allPlayers.includes(playerId)) return null;
-
-    const matchResults = calculateMatchResults(match);
-    const atpResults = calculateAtpBonus(match);
-    const total = (matchResults[playerId] || 0) + (atpResults[playerId] || 0);
-
-    return {
-      total,
-      hasAtp: match.atps.length > 0,
-      atpAmount: atpResults[playerId] || 0,
-    };
-  };
+    return { playerTotals, matchResults };
+  }, [matches, participants]);
 
   const handleDeleteMatch = (matchId: string, index: number) => {
     if (!confirm(`Xóa trận ${index + 1}?`)) return;
@@ -127,7 +127,7 @@ export function ResultsTable({
               <tr className="border-b bg-primary/5 font-bold">
                 <td className="sticky left-0 bg-primary/5 p-2">Tổng</td>
                 {participants.map((p) => {
-                  const total = calculatePlayerTotal(p.playerId);
+                  const total = calculatedData.playerTotals[p.playerId];
                   return (
                     <td
                       key={p.playerId}
@@ -139,7 +139,7 @@ export function ResultsTable({
                           : ''
                       }`}
                     >
-                      {formatAmount(total)}
+                      {formatEggs(total)}
                     </td>
                   );
                 })}
@@ -157,7 +157,7 @@ export function ResultsTable({
                     </div>
                   </td>
                   {participants.map((p) => {
-                    const result = getMatchResultForPlayer(match, p.playerId);
+                    const result = calculatedData.matchResults[match.id]?.[p.playerId];
                     if (!result) {
                       return (
                         <td
@@ -180,7 +180,7 @@ export function ResultsTable({
                         }`}
                       >
                         <span className="inline-flex items-center justify-center gap-0.5 whitespace-nowrap">
-                          {formatAmount(result.total)}
+                          {formatEggs(result.total)}
                           {result.hasAtp && result.atpAmount !== 0 && (
                             <Zap className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                           )}

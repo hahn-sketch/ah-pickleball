@@ -1,21 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { RosterManager } from '@/components/roster/roster-manager';
 import { SessionList } from '@/components/session/session-list';
 import { CreateSessionDialog } from '@/components/session/create-session-dialog';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
-import type { Player, Session as DbSession } from '@prisma/client';
-
-interface SessionWithRelations extends DbSession {
-  participants: Array<{ playerId: string; player: Player }>;
-  matches: Array<{ id: string }>;
-}
+import type { SessionListItem } from '@/types/session';
+import type { Player } from '@prisma/client';
 
 interface HomeClientProps {
   initialPlayers: Player[];
-  initialSessions: SessionWithRelations[];
+  initialSessions: SessionListItem[];
 }
 
 export function HomeClient({ initialPlayers, initialSessions }: HomeClientProps) {
@@ -24,10 +21,15 @@ export function HomeClient({ initialPlayers, initialSessions }: HomeClientProps)
   return (
     <div className="min-h-screen pb-20">
       <header className="sticky top-0 z-50 bg-background border-b">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="font-bold text-lg">🏓 AH Pickleball</h1>
-          </div>
+        <div className="max-w-lg mx-auto px-4 py-2 flex items-center justify-between">
+          <Image
+            src="/logo.jpg"
+            alt="AH Pickleball Team"
+            width={120}
+            height={40}
+            className="h-10 w-auto"
+            priority
+          />
           <Button
             variant="ghost"
             size="icon"

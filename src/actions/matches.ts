@@ -50,8 +50,6 @@ export async function addMatch(data: CreateMatchData) {
   });
 
   revalidateTag('sessions', 'max');
-  revalidatePath(`/session/${data.sessionId}`);
-  revalidatePath(`/view/${data.sessionId}`);
   return match;
 }
 
@@ -60,6 +58,4 @@ export async function deleteMatch(matchId: string, sessionId: string) {
     where: { id: matchId },
   });
   revalidateTag('sessions', 'max');
-  revalidatePath(`/session/${sessionId}`);
-  revalidatePath(`/view/${sessionId}`);
 }

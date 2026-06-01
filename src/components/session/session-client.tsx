@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ParticipantSelector } from '@/components/session/participant-selector';
 import { ResultsTable } from '@/components/session/results-table';
@@ -9,26 +9,12 @@ import { MatchForm } from '@/components/match/match-form';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Share2 } from 'lucide-react';
-import type { Player, Session as DbSession } from '@prisma/client';
-
-interface SessionWithRelations extends DbSession {
-  participants: Array<{ playerId: string; player: Player }>;
-  matches: Array<{
-    id: string;
-    sessionId: string;
-    teamAPlayer1: string;
-    teamAPlayer2: string;
-    teamBPlayer1: string;
-    teamBPlayer2: string;
-    matchType: 'NORMAL' | 'STAR';
-    winnerId: 'TEAM_A' | 'TEAM_B';
-    createdAt: Date;
-    atps: Array<{ id: string; hitterId: string; wasReturned: boolean }>;
-  }>;
-}
+import { formatDateShort } from '@/lib/format';
+import type { SessionWithMatches } from '@/types/session';
+import type { Player } from '@prisma/client';
 
 interface SessionClientProps {
-  session: SessionWithRelations;
+  session: SessionWithMatches;
   allPlayers: Player[];
 }
 
@@ -36,19 +22,11 @@ export function SessionClient({ session, allPlayers }: SessionClientProps) {
   const router = useRouter();
   const [showMatchForm, setShowMatchForm] = useState(false);
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'numeric',
-    });
-  };
-
   const handleShare = async () => {
     const url = `${window.location.origin}/view/${session.id}`;
     try {
       await navigator.share({
-        title: `Buổi ${formatDate(session.date)}`,
+        title: `Buổi ${formatDateShort(session.date)}`,
         text: 'Xem kết quả pickleball',
         url,
       });
@@ -69,7 +47,7 @@ export function SessionClient({ session, allPlayers }: SessionClientProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="font-bold">{formatDate(session.date)}</h1>
+              <h1 className="font-bold">{formatDateShort(session.date)}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
