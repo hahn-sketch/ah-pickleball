@@ -230,7 +230,7 @@ export function MatchForm({ sessionId, participants, onClose }: MatchFormProps) 
                   onClick={() => setMatchType('normal')}
                 >
                   <span className="font-bold">Thường</span>
-                  <span className="text-sm opacity-80">50,000đ</span>
+                  <span className="text-sm opacity-80">50</span>
                 </Button>
                 <Button
                   variant={matchType === 'star' ? 'default' : 'outline'}
@@ -239,7 +239,7 @@ export function MatchForm({ sessionId, participants, onClose }: MatchFormProps) 
                 >
                   <Star className="h-4 w-4 mb-1" />
                   <span className="font-bold">Ngôi sao</span>
-                  <span className="text-sm opacity-80">100,000đ</span>
+                  <span className="text-sm opacity-80">100</span>
                 </Button>
               </div>
             </div>

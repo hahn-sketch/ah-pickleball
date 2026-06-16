@@ -9,24 +9,23 @@ export const STAKE_AMOUNTS: Record<MatchType, number> = {
 
 export const ATP_BONUS_DIVISOR = 2;
 
-// 10,000đ = 1 trứng
-export const EGG_UNIT = 10000;
+export const EGG_UNIT = 1000;
 
-function roundEggs(eggs: number): string {
-  if (Number.isInteger(eggs)) return eggs.toString();
-  return (Math.round(eggs * 10) / 10).toFixed(1);
+function roundEggs(pts: number): string {
+  if (Number.isInteger(pts)) return pts.toString();
+  return (Math.round(pts * 10) / 10).toFixed(1);
 }
 
 export function formatEggs(amount: number): string {
-  const eggs = amount / EGG_UNIT;
-  if (eggs > 0) return `+${roundEggs(eggs)}🥚`;
-  if (eggs < 0) return `${roundEggs(eggs)}🥚`;
+  const pts = amount / EGG_UNIT;
+  if (pts > 0) return `+${roundEggs(pts)}`;
+  if (pts < 0) return `${roundEggs(pts)}`;
   return '0';
 }
 
 export function formatEggsNumber(amount: number): string {
-  const eggs = amount / EGG_UNIT;
-  return roundEggs(eggs);
+  const pts = amount / EGG_UNIT;
+  return roundEggs(pts);
 }
 
 export function getStake(matchType: MatchType): number {

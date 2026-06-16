@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, Check, Loader2 } from 'lucide-react';
-import { calculateSessionResults, formatEggs, formatEggsNumber, EGG_UNIT } from '@/lib/calculations';
+import { calculateSessionResults, formatEggs, formatEggsNumber } from '@/lib/calculations';
 import type { Player, Session as DbSession } from '@prisma/client';
 
 interface DbMatch {
@@ -71,10 +71,6 @@ export function Settlement({
     });
   };
 
-  const formatAmountVND = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(Math.abs(amount)) + 'đ';
-  };
-
   const formatAmountEggs = (amount: number) => {
     return formatEggs(amount);
   };
@@ -94,7 +90,7 @@ export function Settlement({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="courtFee">Tiền sân + nước (nghìn đồng)</Label>
+            <Label htmlFor="courtFee">Chi phí sân + nước</Label>
             <div className="flex gap-2">
               <Input
                 id="courtFee"
@@ -104,9 +100,6 @@ export function Settlement({
                 onChange={(e) => setCourtFeeInput(e.target.value)}
                 disabled={isViewOnly || isPending}
               />
-              <span className="flex items-center text-muted-foreground">
-                ,000đ
-              </span>
             </div>
           </div>
 
@@ -152,9 +145,9 @@ export function Settlement({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground">
-          Tiền sân + nước: {formatAmountVND(session.courtFee)} ÷{' '}
+          Chi phí sân: {formatEggsNumber(session.courtFee)} ÷{' '}
           {session.participants.length} người ={' '}
-          {formatEggsNumber(session.courtFee / session.participants.length)} 🥚/người
+          {formatEggsNumber(session.courtFee / session.participants.length)}/người
         </div>
 
         {!isViewOnly && (
@@ -216,7 +209,7 @@ export function Settlement({
                         {' '}• ATP: {formatAmountEggs(result.atpBonus)}
                       </>
                     )}
-                    {' '}• Sân: -{formatEggsNumber(result.courtShare)} 🥚
+                    {' '}• Sân: -{formatEggsNumber(result.courtShare)}
                   </div>
                   <div className="text-xs font-medium mt-1">
                     {isPositive
